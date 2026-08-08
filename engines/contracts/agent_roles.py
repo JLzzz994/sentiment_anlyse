@@ -1,4 +1,4 @@
-from dataclasses import dataclass, Field, field
+from dataclasses import dataclass
 from typing import Literal
 
 RoleKey = Literal['insight', 'media', 'host', 'report',]

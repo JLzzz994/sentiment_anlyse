@@ -4,11 +4,24 @@ from engines.common.llm import LLMClient
 from engines.common.loggers import route_log_by_role
 from engines.common.reports import get_output_dir
 from engines.common.task_manager import research_task_manager
-from engines.contracts.role_rules import RoleKey
+from engines.contracts.agent_roles import RoleKey
 from engines.insight_agent.agent import insight_agent_handler
 from engines.media_agent.agent import media_agent_handler
 
 # 第一个参数是方法的参数, 第二个参数是方法的返回值
+
+"""
+表示注册函数得有
+async def 某个_agent(
+    run_id: str,
+    query: str,
+    role: ResearchRoleKey,
+    llm_client: LLMClient,
+    output_dir: str,
+    progress_callback: ProgressCallback,
+) -> None:
+    ...
+"""
 AGENT_HANDLER = Callable[[str, str, str, LLMClient, str], Awaitable[None]]
 
 

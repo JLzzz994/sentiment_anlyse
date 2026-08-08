@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from engines.contracts.role_rules import RoleKey
+from engines.contracts.agent_roles import RoleKey
 from engines.contracts.settings import get_settings
 
 

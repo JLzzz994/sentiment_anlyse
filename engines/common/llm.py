@@ -7,7 +7,7 @@ from langchain_core.messages import BaseMessage, SystemMessage, HumanMessage
 from pydantic import BaseModel, Field
 
 from engines.common.retries import with_retry
-from engines.contracts.role_rules import ROLE_INFOS, RoleKey
+from engines.contracts.agent_roles import ROLE_INFOS, RoleKey
 from engines.contracts.settings import get_settings
 
 T = TypeVar('T', bound=BaseModel)  # 需要类型继承BaseModel

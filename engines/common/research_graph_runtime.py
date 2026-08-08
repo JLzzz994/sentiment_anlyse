@@ -1,0 +1,67 @@
+"""研究Agent 图的共享上下文、 节点基类与执行辅助"""
+from abc import ABC
+from dataclasses import dataclass
+from typing import Callable, Any, Mapping
+
+from engines.common.llm import LLMClient
+from engines.contracts.agent_roles import RoleKey
+
+
+@dataclass(slots=True)
+class ProgressUpdate:
+    """节点进度更新载荷"""
+    status: str
+    message: str
+    progress_pct: int
+
+
+ProgressCallback = Callable[[ProgressUpdate], None]
+
+
+@dataclass(slots=True)
+class ResearchRunContext:
+    """单次Insight/Media 研究运行所需的共享依赖于元数据"""
+    task_id: str
+    role: RoleKey
+    llm_client: LLMClient
+    output_dir: str
+    progress_callback: ProgressCallback
+
+    def report_process(self, status: str, message: str, pct: int):
+        """存在回调时上报当前节点执行进度"""
+        if self.progress_callback:
+            self.progress_callback(ProgressUpdate(status, message, pct))
+
+
+class ResearchNode(ABC):
+    """研究Agent 图节点抽象基类"""
+
+    def __init__(self, ctx: ResearchRunContext):
+        self.ctx = ctx
+
+    async def __call__(self, state: dict[str, Any]) -> dict[str, Any]:
+        """节点执行入口"""
+        ...
+
+
+async def handle_research_graph(
+        ctx: ResearchRunContext,
+        graph: Any,
+        query: str,
+):
+    """以统一初始状态执行研究Agent 的langgraph"""
+    initial_state = {"task_id": ctx.task_id, "query": query, "role": ctx.role}
+    await graph.ainvoke(initial_state)
+
+
+def route_after_section_summary(state: Mapping[str, Any]) -> str:
+    """按游标判断继续下一章节摘要或全部完成"""
+    cursor = state.get("cursor", 0)
+    sections = state.get("sections")
+    return "next_section" if cursor < len(sections) else "all_done"
+
+
+SECTION_SUMMARY_LOOP_MAPPING = {
+    "next_section": "summarize_sections",
+    "all_done": "generate_agent_report",
+}

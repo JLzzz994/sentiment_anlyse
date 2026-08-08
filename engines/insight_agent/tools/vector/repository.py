@@ -8,7 +8,7 @@ from pymilvus import MilvusClient, AnnSearchRequest, RRFRanker
 import main
 from engines.contracts.evidence import Engagement
 from engines.contracts.settings import get_settings
-from engines.insight_agent.tools.search_results import DocumentRecord, SearchHit
+from engines.insight_agent.tools.search_results import EvidenceDocument, SearchHit
 from engines.insight_agent.tools.vector.builder import CollectionSchemaBuilder, MILVUS_OUTPUT_FIELDS
 from engines.insight_agent.tools.vector.embedder import VectorEmbedder
 
@@ -55,7 +55,7 @@ class VectorSearchRepository:
         )
         logger.info(f"创建Milvus 集合: {self.collection_name} 成功")
 
-    def upsert_documents(self, documents: list[DocumentRecord]) -> int:
+    def upsert_documents(self, documents: list[EvidenceDocument]) -> int:
         """
         批量向量化并 写入Milvus集合
         class DocumentRecord:
@@ -83,7 +83,7 @@ class VectorSearchRepository:
         return len(milvus_entities)
 
     @staticmethod
-    def _to_milvus_entity( doc: DocumentRecord, dense_vector: list[float], sparse_vector: dict[int, float]):
+    def _to_milvus_entity(doc: EvidenceDocument, dense_vector: list[float], sparse_vector: dict[int, float]):
         """统一文档模型 -> Milvus实体字典"""
         return {
             "platform": doc.platform,
@@ -153,8 +153,8 @@ class VectorSearchRepository:
             entity = hit_dict.get("entity")
             hits.append(SearchHit(
                 retrieval_score=float(hit_dict.get("distance")),
-                retrieval_channel="semantic_recall",
-                retrieval_document=DocumentRecord(
+                retrieval_channel="vector_call",
+                retrieval_document=EvidenceDocument(
                     platform=entity['platform'],
                     source_table=entity['source_table'],
                     mysql_primary_key=entity['mysql_primary_key'],

@@ -10,7 +10,7 @@ from mpmath.matrices.matrices import rowsep
 
 from engines.contracts.evidence import Engagement
 from engines.insight_agent.tools.db_connection import DatabaseConnectionManager, database_connection_manager
-from engines.insight_agent.tools.search_results import SearchResult, DocumentRecord
+from engines.insight_agent.tools.search_results import SearchResult, EvidenceDocument
 from engines.insight_agent.tools.sql import db_sql_statement
 
 
@@ -35,8 +35,8 @@ class DatabaseSearchRepository:
             result = await session.execute(stmt, params)
             return [dict(row) for row in result.mappings().all()]
 
-    def _row_to_document(self, row: dict[str, Any]) -> DocumentRecord:
-        return DocumentRecord(
+    def _row_to_document(self, row: dict[str, Any]) -> EvidenceDocument:
+        return EvidenceDocument(
             platform=row['platform'],
             source_table=row['source_table'],
             mysql_primary_key=row['mysql_primary_key'],
@@ -53,7 +53,7 @@ async def main():
     try:
         result : SearchResult = await repo.db_call(query=keyword,limit=limit)
         print(f"检索成功,返回通道:{result.retrieval_channel}")
-        records: list[DocumentRecord]  = result.retrieval_results
+        records: list[EvidenceDocument]  = result.retrieval_results
         print(f"共查到{len(records)}条数据")
         for idx,record in enumerate(records, start=1):
             print(f"[{idx}]平台: {record.platform} | 数据表: {record.source_table} | ID: {record.mysql_primary_key}")
