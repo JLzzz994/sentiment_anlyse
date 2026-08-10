@@ -41,7 +41,7 @@ class RetryConfig:
 retry_config = RetryConfig()
 
 
-async def with_retry(func):
+def with_retry(func):
     """
     异步重试 装饰器
     """

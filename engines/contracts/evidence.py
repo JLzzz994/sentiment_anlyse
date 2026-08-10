@@ -1,5 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Any
+
 
 
 @dataclass(slots=True)
@@ -32,15 +34,73 @@ class EvidenceDocument:
 @dataclass(slots=True)
 class RetrievalMeta:
     """召回过程元数据(关键词列表/分数)"""
-    matched_queries: list[str] = field(default_factory=list) #关键词
-    channel_scores: dict[str, float] = field(default_factory=dict) # channel:score
+    matched_queries: list[str] = field(default_factory=list)  # 关键词
+    channel_scores: dict[str, float] = field(default_factory=dict)  # channel:score
+
 
 @dataclass(slots=True)
 class EvidenceRecord:
     """一次检索中 命中的舆情证据及其召回的元数据"""
-    evidence_document:EvidenceDocument
-    retrieval_meta:RetrievalMeta = field(default_factory=RetrievalMeta)
+    evidence_document: EvidenceDocument
+    retrieval_meta: RetrievalMeta = field(default_factory=RetrievalMeta)
 
     @property
-    def id(self)->str:
+    def id(self) -> str:
         return self.evidence_document.doc_id
+
+
+@dataclass(slots=True)
+class EvidenceContext:
+    """供LLM 提示词使用的已渲染证据上下文"""
+    retrieval_text: str = ""
+    evidence_text: str = ""
+
+
+def _truncate_content(content: str, max_length: int = 3000) -> str:
+    if len(content) <= max_length:
+        return content
+    return content[:max_length] + "..."
+
+
+def _render_engagement(engagement: dict[str, Any]) -> str:
+    """转换成中文"""
+    values = (
+        ("点赞", engagement['likes']),
+        ("评论", engagement['comments']),
+        ("分享", engagement['shares']),
+        ("收藏", engagement['collects']),
+        ("回复", engagement['replies'])
+    )
+    return " / ".join(f"{label} {value}" for label, value in values)
+
+
+def _render_evidence_record(evidence_number: int, record: EvidenceRecord, ) -> str:
+    document = record.evidence_document
+    fields = (
+        ("平台/检索提供方", document.platform),
+        ("来源表/工具", document.source_table),
+        ("命中查询", " / ".join(record.retrieval_meta.matched_queries)),
+        ("内容", _truncate_content(document.content)),
+        ("发布时间/抓取时间", document.published_at),
+        ("热度分", document.hotness_score),
+        ("互动数据", _render_engagement(document.engagement))
+    )
+    lines = [f"[证据 {evidence_number}]"]
+    lines.extend(f"{label}: {value}" for label, value in fields if value)
+    return "\n".join(lines)
+
+
+def _render_evidence_records(records: list[EvidenceRecord]) -> list[str]:
+    """将证据记录渲染为带稳定编号的llm文本块"""
+    return [_render_evidence_record(evidence_number, record, ) for evidence_number, record in
+            enumerate(records, start=1)]
+
+
+def build_evidence_context(retrieval_text: str, records: list[EvidenceRecord], max_rendered: int) -> EvidenceContext:
+    """统计命中数并渲染有限证据,构建llm提示词上下文"""
+    return EvidenceContext(
+        retrieval_text=retrieval_text,
+        evidence_text="\n\n".join(
+            _render_evidence_records(records[:max_rendered])
+        ),
+    )

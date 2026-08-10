@@ -178,5 +178,5 @@ def get_section_definitions_for_role(role: RoleKey) -> list[dict[str, str]]:
             for section in SECTION_DEFINITIONS.values()]
 
 def get_insight_routing_rules()->dict[str,tuple[str,...]]:
-    """提取各章节的私域证据路由关键词"""
+    """!!!全部5章都有 提取各章节的私域证据路由关键词"""
     return {section.key: section.insight_routing_keywords for section in SECTION_DEFINITIONS.values()}
