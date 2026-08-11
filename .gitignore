@@ -1,16 +1,23 @@
 # 密钥 / 本地配置
 .env
+.env.*
+!.env.example
 
 # 虚拟环境
 .venv/
 
 # IDE
 .idea/
+.claude
+.codegraph
 
 # Python 缓存
 __pycache__/
 *.py[cod]
 *$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # 运行时数据（日志、输出等）
 var/
@@ -18,3 +25,4 @@ var/
 # 系统文件
 .DS_Store
 Thumbs.db
+/test/llm_test.py

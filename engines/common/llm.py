@@ -115,41 +115,4 @@ class User(BaseModel):
     project: list[Project] = Field(default_factory=list, description="项目")
 
 
-async def main_test():
-    # llm_client = LLMClient.from_role('insight')
 
-    # result = await llm_client.generate_text(system_prompt="你是一个讲笑话的专家",user_prompt="请您给我讲一个笑话")
-    # print(result)
-
-    # result = await llm_client.generate_object(
-    #     system_prompt="你是一个用户信息提取专家",
-    #     user_prompt="请从我以下的输入信息中，提取用户的信息："
-    #                 "我的名字叫Tom,今年18岁，我参与过电商项目以及AI多智能体项目的开发，"
-    #                 "电商项目使用的技术栈：SpringBoot、 Redis、MySQL"
-    #                 "AI多智能体项目使用的技术栈: LangChain、LangGraph、LangFuse、LangSmith ",
-    #     output_model=User
-    # )
-    # print(result)
-
-    # llm_client = init_chat_model(
-    #     model='DeepSeek-V4-Flash',
-    #     model_provider='openai',
-    #     base_url='https://developer.amd.com.cn/radeon/api/v1',
-    #     api_key='rc-bc646332e318c184b013f38d8543005f460f3823763a5a78'
-    # )
-    llm_client = init_chat_model(
-        model='gpt-5.6-luna',
-        model_provider='openai',
-        base_url='https://api.openai-proxy.org/v1',
-        api_key='sk-aGlz1erL7eCjMtq46QN55UBEsZ2jFG7ou8QW2fACNFVvqUcW'
-    )
-    messages = [    {"role": "system", "content": "你是一个讲笑话的专家"},
-    {"role": "user", "content": "请您给我讲一个笑话"},]
-    result = await llm_client.ainvoke(messages)
-    print(result.text)
-
-
-
-
-if __name__ == '__main__':
-    asyncio.run(main_test())

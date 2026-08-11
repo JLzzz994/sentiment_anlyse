@@ -3,7 +3,6 @@ from datetime import datetime
 from typing import Any
 
 
-
 @dataclass(slots=True)
 class Engagement:
     likes: float
@@ -19,16 +18,20 @@ class EvidenceDocument:
 
     platform: str
     source_table: str
-    mysql_primary_key: str
+    source_id: str
     content: str
-    published_at: datetime
+    published_at: datetime | str
     engagement: dict[str, float] = field(default_factory=dict)
     hotness_score: float = 0.0
+
+    url: str = ""
+    title: str = ""
+    source_name: str = ""
 
     @property
     def doc_id(self) -> str:
         """根据来源字段生成稳定文档标识"""
-        return f"{self.platform}:{self.source_table}:{self.mysql_primary_key}"
+        return f"{self.platform}:{self.source_table}:{self.source_id}"
 
 
 @dataclass(slots=True)
@@ -65,11 +68,11 @@ def _truncate_content(content: str, max_length: int = 3000) -> str:
 def _render_engagement(engagement: dict[str, Any]) -> str:
     """转换成中文"""
     values = (
-        ("点赞", engagement['likes']),
-        ("评论", engagement['comments']),
-        ("分享", engagement['shares']),
-        ("收藏", engagement['collects']),
-        ("回复", engagement['replies'])
+        ("点赞", engagement.get('likes')),
+        ("评论", engagement.get('comments')),
+        ("分享", engagement.get('shares')),
+        ("收藏", engagement.get('collects')),
+        ("回复", engagement.get('replies'))
     )
     return " / ".join(f"{label} {value}" for label, value in values)
 

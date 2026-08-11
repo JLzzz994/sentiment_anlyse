@@ -89,7 +89,7 @@ class VectorSearchRepository:
             "platform": doc.platform,
             "source_table": doc.source_table,
             "doc_id": doc.doc_id,
-            "mysql_primary_key": doc.mysql_primary_key,
+            "mysql_primary_key": doc.source_id,
             "content": doc.content,
             "published_at": int(doc.published_at.timestamp()),
             **{field.name: float(doc.engagement.get(field.name, 0.0)) for field in fields(Engagement)},
@@ -157,9 +157,8 @@ class VectorSearchRepository:
                 retrieval_document=EvidenceDocument(
                     platform=entity['platform'],
                     source_table=entity['source_table'],
-                    mysql_primary_key=entity['mysql_primary_key'],
+                    source_id=entity['mysql_primary_key'],
                     content=entity['content'],
-                    # published_at=datetime.fromtimestamp(entity['published_at']),
                     published_at=datetime.fromtimestamp(int(entity.get('published_at'))),
                     engagement={field.name: float(entity.get(field.name)) for field in fields(Engagement)},
                     hotness_score=entity['hotness_score'],
@@ -179,7 +178,7 @@ if __name__ == '__main__':
         for idx,hit in enumerate(hits, start=1):
             doc = hit.retrieval_document
             print(f"[{idx}] 得分 (Distance/Score): {hit.retrieval_score:.4f}")
-            print(f"    平台: {doc.platform} | 数据库主键: {doc.mysql_primary_key}")
+            print(f"    平台: {doc.platform} | 数据库主键: {doc.source_id}")
             print(f"    发布时间: {doc.published_at}")
             print(f"    热度得分: {doc.hotness_score}")
             print(f"    内容摘要: {doc.content[:50]}...")

@@ -39,7 +39,7 @@ class DatabaseSearchRepository:
         return EvidenceDocument(
             platform=row['platform'],
             source_table=row['source_table'],
-            mysql_primary_key=row['mysql_primary_key'],
+            source_id=row['mysql_primary_key'],
             content=row.get('title_or_content',""),
             published_at=datetime.fromtimestamp(row['published_at']),
             engagement={field.name: float(row[f"eng_{field.name}"]) for field in fields(Engagement)},
@@ -56,7 +56,7 @@ async def main():
         records: list[EvidenceDocument]  = result.retrieval_results
         print(f"共查到{len(records)}条数据")
         for idx,record in enumerate(records, start=1):
-            print(f"[{idx}]平台: {record.platform} | 数据表: {record.source_table} | ID: {record.mysql_primary_key}")
+            print(f"[{idx}]平台: {record.platform} | 数据表: {record.source_table} | ID: {record.source_id}")
             print(f"     内容: {record.content[:50]}...")
             print(f"     发布时间: {record.published_at}")
             print(f"     互动数据: {record.engagement}")

@@ -25,7 +25,7 @@ class ResearchRunContext:
     role: RoleKey
     llm_client: LLMClient
     output_dir: str
-    progress_callback: ProgressCallback
+    progress_callback: ProgressCallback | None
 
     def report_process(self, status: str, message: str, pct: int):
         """存在回调时上报当前节点执行进度"""

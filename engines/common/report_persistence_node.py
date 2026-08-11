@@ -16,7 +16,7 @@ class ReportPersistenceNode(ResearchNode):
         logger.info(f"{role_info.agent_name} 开始独立报告落盘")
 
         final_report = state['final_report']
-        md_path = save_report(self.ctx.output_dir, f"{state['query']}_report_md", final_report)
+        md_path = save_report(self.ctx.output_dir, f"{state['query']}_report.md", final_report)
 
         logger.info(f"{role_info.agent_name} 完成独立报告落盘: {md_path}")
         return {}

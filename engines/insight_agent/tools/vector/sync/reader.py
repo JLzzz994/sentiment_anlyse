@@ -29,7 +29,7 @@ class DocumentRecordReader:
         return EvidenceDocument(
             platform=row["platform"],
             source_table=row["source_table"],
-            mysql_primary_key=row["mysql_primary_key"],
+            source_id=row["mysql_primary_key"],
             content=content,
             published_at=published_at,
             engagement={field.name: float(row[f"eng_{field.name}"]) for field in fields(Engagement)},
