@@ -6,7 +6,7 @@ import numpy as np
 from loguru import logger
 
 from engines.common.research_graph_runtime import ResearchNode
-from engines.contracts.agent_roles import ROLE_INFOS
+from engines.contracts.agent_roles import ROLE_INFOS, role_display_name
 from engines.contracts.evidence import EvidenceRecord
 from engines.contracts.section_definitions import get_insight_routing_rules, SECTION_DEFINITIONS
 from engines.contracts.settings import get_settings
@@ -19,9 +19,8 @@ class SectionEvidenceRoutingNode(ResearchNode):
         """
         return section_record_ids: dict[str, list[str]] # 章节key: 证据id列表
         """
-        role = state['role']
-        role_info = ROLE_INFOS[role]
-        logger.info(f"{role_info.agent_name} 开始章节分配证据")
+        agent_name = role_display_name(state["role"])
+        logger.info(f"{agent_name} 开始章节分配证据")
         # records_by_id: dict[str, EvidenceRecord] # 证据id : 证据对象 的映射关系
         records: list[EvidenceRecord] = list(state.get("records_by_id").values())
         # 1. 语义分配
@@ -30,7 +29,7 @@ class SectionEvidenceRoutingNode(ResearchNode):
         else:
             section_record_ids = _route_by_rules(records)
 
-        logger.info(f"{role_info.agent_name} 完成章节分配证据")
+        logger.info(f"{agent_name} 完成章节分配证据")
         return {"section_record_ids": section_record_ids}
 
 

@@ -72,7 +72,7 @@ class LLMClient:
         llm_client = self._build_chat_model()
 
         # 2. 调用xxx 输出方法 method:json_mode(最弱) json_schema(最强) 物理层面 function_calling(支持性最好的) 训练出来的格式 tool_call:是function_calling升级后的
-        structured_output = llm_client.with_structured_output(output_model, method="json_schema")  # 100%输出结构化对象
+        structured_output = llm_client.with_structured_output(output_model, method="function_calling")  # 100%输出结构化对象
         messages = self._build_input(system_prompt, user_prompt)
         result = await structured_output.ainvoke(messages)
         # 3. 返回
@@ -104,15 +104,7 @@ class LLMClient:
         ]
 
 
-class Project(BaseModel):
-    project_name: str = Field(description="项目名称")
-    tech_tracks: list[str] = Field(description="技术栈")
 
-
-class User(BaseModel):
-    name: str = Field(description="用户名")
-    age: int = Field(description="年龄")
-    project: list[Project] = Field(default_factory=list, description="项目")
 
 
 

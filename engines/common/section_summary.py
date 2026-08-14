@@ -4,8 +4,9 @@ from typing import Any
 from langchain_core.prompts import PromptTemplate
 from loguru import logger
 
+from engines.common.events import publish_section_ready
 from engines.common.research_graph_runtime import ResearchNode
-from engines.contracts.agent_roles import ROLE_INFOS
+from engines.contracts.agent_roles import ROLE_INFOS, role_display_name
 from engines.contracts.evidence import build_evidence_context, EvidenceRecord, EvidenceContext
 from engines.contracts.research_graph_state import SectionState
 from engines.contracts.section_definitions import find_section_definition
@@ -22,10 +23,10 @@ class BaseSectionSummaryNode(ResearchNode):
 
     async def __call__(self, state: dict[str, Any]) -> dict[str, Any]:
         """按游标取证据包生成章节正文 并发布就绪事件"""
-        role = state['role']
-        role_info = ROLE_INFOS[role]
         cursor = state.get("cursor", 0)
-        logger.info(f"{role_info.agent_name} 开始按游标:{cursor}取章节证据包生成章节正文")
+        agent_name = role_display_name(state["role"])
+        self.ctx.report_progress("summary", f"{agent_name} 开始按游标:{cursor}生成章节摘要", 50)
+
 
         sections = list(state.get("sections"))
         if cursor >= len(sections):
@@ -54,9 +55,12 @@ class BaseSectionSummaryNode(ResearchNode):
                 evidence_context,
             )
         # todo 发布摘要生成事件给HostAgent 做章节研判
+        publish_section_ready(state,section)
+
         sections[cursor] = section
 
-        logger.info(f"{role_info.agent_name} 按游标:{cursor}取章节证据包 生成章节正文完成.")
+        self.ctx.report_progress("summary", f"{agent_name} 完成按游标:{cursor}生成章节摘要", 60)
+
         return {"sections": sections, "cursor": cursor + 1}
 
     def _section_records(self, state:dict[str,Any], cursor:int)->list[EvidenceRecord]:

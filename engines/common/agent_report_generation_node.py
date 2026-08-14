@@ -5,7 +5,7 @@ from langchain_core.prompts import PromptTemplate
 from loguru import logger
 
 from engines.common.research_graph_runtime import ResearchNode
-from engines.contracts.agent_roles import ROLE_INFOS
+from engines.contracts.agent_roles import ROLE_INFOS, role_display_name
 from engines.contracts.research_graph_state import ResearchGraphState, SectionState
 from engines.prompts.report import AGENT_REPORT_GENERATION_USER_PROMPT, AGENT_REPORT_GENERATION_SYSTEM_PROMPT
 
@@ -14,10 +14,9 @@ class AgentReportGenerationNode(ResearchNode):
     """将Agent的章节正文整合为独立研究报告"""
 
     async def __call__(self, state: ResearchGraphState[Any]) -> dict[str, Any]:
-        role = state['role']
-        role_info = ROLE_INFOS[role]
-        logger.info(f"{role_info.agent_name} 开始将章节正文整合为独立研究报告")
 
+        agent_name = role_display_name(state["role"])
+        self.ctx.report_progress("generating", f"{agent_name} 开始将章节摘要整合为独立研究报告", 70)
         query: str = state["query"]
         sections: list[SectionState] = state['sections']
         logger.info(f"开始生成独立报告,舆论话题:{query}, 待整合章节数: {len(sections)}")
@@ -26,7 +25,8 @@ class AgentReportGenerationNode(ResearchNode):
                                     ensure_ascii=False)
         final_report = await self._generate_report(report_context, query)
 
-        logger.info(f"{role_info.agent_name} 完成将章节正文整合为独立研究报告")
+        self.ctx.report_progress("generating", f"{agent_name} 完成将章节摘要整合为独立研究报告", 80)
+
         return {"final_report": final_report}
 
     async def _generate_report(self, report_context: str, query: str) -> str:

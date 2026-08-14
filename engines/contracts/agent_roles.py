@@ -17,3 +17,11 @@ ROLE_INFOS: dict[RoleKey, RoleInfo] = {
     "report": RoleInfo(config_prefix='REPORT_ENGINE_',agent_name="报告引擎"),
 }
 
+def role_display_name(role_key:RoleKey)->str:
+    """返回角色的中文展示名"""
+    return ROLE_INFOS[role_key].agent_name
+
+RESEARCH_ROLE_KEYS:tuple[RoleKey,...] = (
+    "insight",
+    "media",
+)

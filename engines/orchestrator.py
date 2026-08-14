@@ -1,9 +1,13 @@
 from typing import Callable, Awaitable
 
+from loguru import logger
+
+from engines.common.events import publish_role_error, RoleErrorEvent, publish_role_result, RoleResultEvent, \
+    publish_role_progress, RoleProgressEvent
 from engines.common.llm import LLMClient
 from engines.common.loggers import route_log_by_role
 from engines.common.reports import get_output_dir
-from engines.common.research_graph_runtime import ProgressCallback
+from engines.common.research_graph_runtime import ProgressCallback, ProgressUpdate
 from engines.common.task_manager import research_task_manager
 from engines.contracts.agent_roles import RoleKey
 from engines.insight_agent.agent import insight_agent_handler
@@ -48,9 +52,53 @@ class OrchestratorAgent:
         不需要返回值 ,落盘到var目录下
         """
         with route_log_by_role(role):
-            # 1. 获取角色对应的llm客户端
-            llm_client = LLMClient.from_role(role)
-            # 2. 获取角色对应的报告输出目录
-            output_dir = get_output_dir(task_id, role)
-            # 3. 执行执行角色Agent的逻辑
-            await self._agent_handlers[role](role, query, task_id, llm_client, output_dir,None)
+            self._publish_progress(
+                task_id,
+                role,
+                ProgressUpdate(
+                    status="starting",
+                    message='开始执行研究',
+                    progress_pct=0,
+                ),
+            )
+            try:
+                # 1. 获取角色对应的llm客户端
+                llm_client = LLMClient.from_role(role)
+                # 2. 获取角色对应的报告输出目录
+                output_dir = get_output_dir(task_id, role)
+                # 3. 执行执行角色Agent的逻辑
+                await self._agent_handlers[role](
+                    role,
+                    query,
+                    task_id,
+                    llm_client,
+                    output_dir,
+                    lambda update:self._publish_progress(task_id,role,update)
+                )
+            except Exception as exc:
+                logger.error(f"{role} 研究智能体执行期间出现异常: {exc}")
+                publish_role_error(
+                    RoleErrorEvent(
+                        task_id=task_id,
+                        role=role,
+                        error=str(exc)
+                    )
+                )
+                return
+            publish_role_result(
+                RoleResultEvent(
+                    task_id=task_id,
+                    role=role
+                )
+            )
+    @staticmethod
+    def _publish_progress(task_id:str,role:RoleKey,update:ProgressUpdate):
+        publish_role_progress(
+            RoleProgressEvent(
+                task_id=task_id,
+                role=role,
+                status=update.status,
+                message=update.message,
+                progress_pct=update.progress_pct
+            )
+        )

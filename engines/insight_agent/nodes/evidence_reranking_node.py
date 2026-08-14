@@ -3,7 +3,7 @@ from typing import Any
 from loguru import logger
 
 from engines.common.research_graph_runtime import ResearchNode
-from engines.contracts.agent_roles import ROLE_INFOS
+from engines.contracts.agent_roles import ROLE_INFOS, role_display_name
 from engines.contracts.evidence import EvidenceRecord, RetrievalMeta
 
 """
@@ -22,9 +22,8 @@ class EvidenceRerankingNode(ResearchNode):
 
     async def __call__(self, state: dict[str, Any]) -> dict[str, Any]:
         """合并重复召回指标、计算排名分数并构建证据索引"""
-        role = state['role']
-        role_info = ROLE_INFOS[role]
-        logger.info(f"{role_info.agent_name} 开始召回证据的去重和重排序")
+        agent_name = role_display_name(state["role"])
+        logger.info(f"{agent_name} 开始召回证据的去重和重排序")
         # 1. 合并去重
         merged_records: list[EvidenceRecord] = _dedupe_and_merge(state.get("retrieved_records"))
         # 2. 重新计算得分 证据id,score
@@ -35,7 +34,7 @@ class EvidenceRerankingNode(ResearchNode):
                                                        key=lambda record: rerank_records.get(record.id, float('-inf')),
                                                        reverse=True, )
 
-        logger.info(f"{role_info.agent_name} 完成召回证据的去重和重排序")
+        logger.info(f"{agent_name} 完成召回证据的去重和重排序")
         return {"records_by_id": {record.id: record for record in ordered_records},
                 "rerank_scores": rerank_records}
 

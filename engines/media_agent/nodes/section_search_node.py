@@ -5,7 +5,7 @@ from typing import Any
 from loguru import logger
 
 from engines.common.research_graph_runtime import ResearchNode, ResearchRunContext
-from engines.contracts.agent_roles import ROLE_INFOS
+from engines.contracts.agent_roles import ROLE_INFOS, role_display_name
 from engines.contracts.evidence import EvidenceRecord
 from engines.media_agent.state import MediaState, MediaSectionState
 from engines.media_agent.web_search.retrieval_service import MediaRetrievalService
@@ -20,9 +20,8 @@ class SectionSearchNode(ResearchNode):
 
     async def __call__(self, state: MediaState) -> dict[str, Any]:
         """遍历章节执行检索并去重 产出证据池"""
-        role = state['role']
-        role_info = ROLE_INFOS[role]
-        logger.info(f"{role_info.agent_name} 开始执行公域信息搜索")
+        agent_name = role_display_name(state["role"])
+        self.ctx.report_progress("searching", f"{agent_name} 开始执行公域信息搜索", 30)
 
         query: str = state["query"]
         sections: list[MediaSectionState] = state.get('sections', [])
@@ -42,7 +41,7 @@ class SectionSearchNode(ResearchNode):
                 "\n".join(f"[{tool}] {query}" for query in queries)
             )
 
-        logger.info(f"{role_info.agent_name} 完成执行公域信息搜索")
+        self.ctx.report_progress("searching", f"{agent_name} 完成执行公域信息搜索", 40)
         return {"section_evidence_records": section_evidence_records,
                 "section_queries": section_queries}
 

@@ -27,7 +27,7 @@ class ResearchRunContext:
     output_dir: str
     progress_callback: ProgressCallback | None
 
-    def report_process(self, status: str, message: str, pct: int):
+    def report_progress(self, status: str, message: str, pct: int):
         """存在回调时上报当前节点执行进度"""
         if self.progress_callback:
             self.progress_callback(ProgressUpdate(status, message, pct))

@@ -52,4 +52,10 @@ class ResearchTaskManager:
         task.add_done_callback(self.async_tasks.discard)
 
 
+    async def cancel_all_tasks(self):
+        tasks = tuple(task for task in self.async_tasks if not task.done())
+        for task in tasks:
+            task.cancel()
+        if tasks:
+            await asyncio.gather(*tasks,return_exceptions=True)
 research_task_manager = ResearchTaskManager()
