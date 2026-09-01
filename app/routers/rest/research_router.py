@@ -1,12 +1,29 @@
 from fastapi import APIRouter
 
 from app.dependencies import ResearchServiceDep
-from app.schemas.research_schema import ResearchResponse, ResearchRequest, ResearchResultsResponse
+from app.schemas.research_schema import (
+    ResearchExample,
+    ResearchExamplesResponse,
+    ResearchRequest,
+    ResearchResponse,
+    ResearchResultsResponse,
+)
 
 research_router = APIRouter(
     prefix='/api/research',
     tags=['研究路由'],
 )
+
+
+@research_router.get(
+    "/examples",
+    response_model=ResearchExamplesResponse,
+    description="获取电商业务 Demo 研究题目",
+)
+def get_research_examples_endpoint(service: ResearchServiceDep):
+    return ResearchExamplesResponse(
+        examples=[ResearchExample.model_validate(item) for item in service.get_research_examples()]
+    )
 
 
 @research_router.post("", response_model=ResearchResponse, description='开始研究接口')
