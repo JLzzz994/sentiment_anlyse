@@ -20,7 +20,7 @@ class Settings(BaseSettings):
     DB_PORT: int = Field(3306, description="数据库端口")
     DB_USER: str = Field("root", description="数据库用户名")
     DB_PASSWORD: str = Field("", description="数据库密码")
-    DB_NAME: str = Field("media_crawler", description="数据库名称")
+    DB_NAME: str = Field("ecommerce_insight", description="数据库名称")
     DB_CHARSET: str = Field("utf8mb4", description="字符集")
 
     INSIGHT_ENGINE_API_KEY: Optional[str] = Field(None, description="Insight 角色 API 密钥")
@@ -76,7 +76,7 @@ class Settings(BaseSettings):
     MILVUS_URI: str = Field("http://localhost:19530", description="Milvus 服务器地址(URI)")
     MILVUS_DB_NAME: str = Field("default", description="Milvus 数据库名称")
     MILVUS_INSIGHT_COLLECTION: str = Field(
-        "insight_evidence", description="Milvus 证据集合(Collection)名称"
+        "ecommerce_insight_evidence", description="Milvus 证据集合(Collection)名称"
     )
     INSIGHT_EMBEDDING_MODEL: str = Field(
         "BAAI/bge-m3", description="Insight 检索所使用的 Embedding 模型名称/路径"
