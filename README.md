@@ -140,3 +140,34 @@ GET /api/report/generation/{generation_id}/status
 ```
 
 用于查询 `running / completed / error`。
+
+
+## Vue 3 正式前端
+
+原 `/demo` 内嵌 HTML/JS 用于验证交互；正式版本已迁移到 `frontend/`，采用 Vue 3 + Vite。
+
+开发模式：
+
+```bash
+uv run uvicorn main:app --reload --port 5000
+
+cd frontend
+npm install
+npm run dev
+```
+
+访问 `http://localhost:5173/ui/`。
+
+生产模式执行 `npm run build` 后，FastAPI 会自动挂载 `frontend/dist` 到 `/ui/`。
+
+正式页面新增：
+- 五章业务 Tab
+- Insight / Media 证据卡片
+- 来源与 source_table
+- MySQL / Milvus / Web 检索通道
+- 命中查询、排序分、热度
+- Host 风险 / 机会 / 受影响对象 / 建议动作
+- Host 五章增量研判
+- Report 最终 HTML 报告预览
+
+详细说明见 `frontend/README.md`。
