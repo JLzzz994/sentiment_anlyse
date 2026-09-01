@@ -52,6 +52,7 @@ class HostNodes:
                 section_judgement
             ),
         ]
+        self._persist_judgements(state["task_id"], judgements)
         logger.info(
             f"[{role_display_name('host')}] 章节研判完成"
             f"章节={section_judgement.section_key}"
