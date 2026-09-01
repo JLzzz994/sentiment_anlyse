@@ -1,4 +1,7 @@
+from pathlib import Path
+
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.dependencies import get_lifecycle_manager
 from app.exceptions.exception_handlers import register_exception_handlers
@@ -30,3 +33,8 @@ app.include_router(host_router)
 app.include_router(report_router)
 app.include_router(system_router)
 app.include_router(sse_router)
+
+# Vue 3 正式前端：执行 frontend/npm run build 后由 FastAPI 提供 /ui/。
+frontend_dist = Path(__file__).resolve().parents[1] / "frontend" / "dist"
+if frontend_dist.exists():
+    app.mount("/ui", StaticFiles(directory=frontend_dist, html=True), name="frontend")
