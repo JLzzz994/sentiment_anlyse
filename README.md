@@ -71,3 +71,46 @@
 - 规则事实优先引用平台官方来源；公开讨论不能替代规则原文。
 - 私域样本不能外推为全部商家；公域样本不能外推为全部消费者。
 - 风险/机会建议必须能回指当前任务证据与 Host 研判。
+
+
+## Demo 快速启动
+
+仓库已提供完全合成的私域业务数据和 5 个研究 Case。详细步骤见 `scripts/demo/README.md`。
+
+```bash
+mysql -u root -p < scripts/demo/01_schema.sql
+mysql -u root -p < scripts/demo/02_seed.sql
+mysql -u root -p < scripts/demo/03_view.sql
+mysql -u root -p < scripts/demo/04_check.sql
+```
+
+服务启动后可通过：
+
+```http
+GET /api/research/examples
+```
+
+直接获取“售后规则变化、履约风险、商品口碑、竞品情报、客服知识缺口”5 类演示题目，再将其中的 `query` 提交到 `POST /api/research`。
+
+完整演示链路：
+
+```text
+Demo 研究题目
+    │
+    ├──────────────┐
+    ▼              ▼
+Insight Agent   Media Agent
+私域混合检索     公域搜索规划
+    │              │
+    └──SectionReady┘
+          │
+          ▼
+       Host Agent
+风险/机会/冲突/建议
+          │
+          ▼
+      Report Agent
+   Markdown / HTML
+```
+
+Demo 数据均为合成数据，不代表真实客户、商家或经营结果。
