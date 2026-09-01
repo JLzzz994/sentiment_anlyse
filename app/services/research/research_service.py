@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 from app.services.research.research_cases import ECOMMERCE_RESEARCH_CASES
@@ -43,3 +44,17 @@ class ResearchService:
     def get_research_examples() -> list[dict[str, object]]:
         """返回前端可直接展示和发起研究的 Demo Case。"""
         return [dict(case) for case in ECOMMERCE_RESEARCH_CASES]
+
+
+    def get_research_evidence(self, task_id: str) -> dict[str, object]:
+        """读取 Insight / Media 已持久化的章节证据卡片。"""
+        research_task_manager.get_research_task(task_id)
+        sections: list[dict[str, object]] = []
+        for role in RESEARCH_ROLE_KEYS:
+            evidence_file = Path(get_output_dir(task_id, role)) / "evidence.json"
+            if not evidence_file.exists():
+                continue
+            payload = json.loads(evidence_file.read_text(encoding="utf-8"))
+            for section in payload.get("sections", {}).values():
+                sections.append({"role": role, **section})
+        return {"task_id": task_id, "sections": sections}
