@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi.responses import Response,FileResponse
 from app.dependencies import ReportServiceDep
-from app.schemas.report_schema import ReportStatusResponse, GenerateReportResponse, GenerateReportRequest
+from app.schemas.report_schema import ReportStatusResponse, GenerateReportResponse, GenerateReportRequest, ReportGenerationStatusResponse
 
 report_router = APIRouter(
     prefix='/api/report',
@@ -24,6 +24,21 @@ async def generate_report_endpoint(payload: GenerateReportRequest, service: Repo
         generation_id=generation.generation_id,
         task_id=generation.task_id
     )
+@report_router.get(
+    "/generation/{generation_id}/status",
+    response_model=ReportGenerationStatusResponse,
+    description="获取单次综合报告生成状态",
+)
+def get_generation_status_endpoint(generation_id: str, service: ReportServiceDep):
+    generation = service.get_generation_status(generation_id)
+    return ReportGenerationStatusResponse(
+        generation_id=generation.generation_id,
+        task_id=generation.task_id,
+        status=generation.status.value,
+        error_message=generation.error_message,
+    )
+
+
 # 前端预览报告接口
 @report_router.get('/result/{generation_id}',description='获得报告生成结果')
 def get_generate_result_endpoint(generation_id:str,service:ReportServiceDep):
