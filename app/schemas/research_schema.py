@@ -42,3 +42,32 @@ class ResearchExample(BaseModel):
 
 class ResearchExamplesResponse(BaseModel):
     examples: list[ResearchExample] = Field(default_factory=list)
+
+
+class EvidenceCard(BaseModel):
+    evidence_id: str
+    platform: str = ""
+    source_table: str = ""
+    source_name: str = ""
+    title: str = ""
+    url: str = ""
+    content: str = ""
+    published_at: str = ""
+    hotness_score: float = 0
+    engagement: dict[str, float] = Field(default_factory=dict)
+    matched_queries: list[str] = Field(default_factory=list)
+    retrieval_channels: dict[str, float] = Field(default_factory=dict)
+    rerank_score: float | None = None
+
+
+class EvidenceSection(BaseModel):
+    role: str
+    section_key: str
+    title: str
+    retrieval_text: str = ""
+    evidence: list[EvidenceCard] = Field(default_factory=list)
+
+
+class ResearchEvidenceResponse(BaseModel):
+    task_id: str
+    sections: list[EvidenceSection] = Field(default_factory=list)
