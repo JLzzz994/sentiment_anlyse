@@ -7,6 +7,7 @@ from app.schemas.research_schema import (
     ResearchRequest,
     ResearchResponse,
     ResearchResultsResponse,
+    ResearchEvidenceResponse,
 )
 
 research_router = APIRouter(
@@ -35,3 +36,12 @@ async def start_research_endpoint(payload: ResearchRequest, service: ResearchSer
 def get_research_result_endpoint(task_id: str, service: ResearchServiceDep):
     resolved_task_id, research_results = (service.get_research_results(task_id))
     return ResearchResultsResponse(task_id=resolved_task_id,results=research_results)
+
+
+@research_router.get(
+    "/evidence",
+    response_model=ResearchEvidenceResponse,
+    description="获取章节级证据卡片",
+)
+def get_research_evidence_endpoint(task_id: str, service: ResearchServiceDep):
+    return ResearchEvidenceResponse.model_validate(service.get_research_evidence(task_id))
