@@ -24,3 +24,11 @@ class GenerateReportResponse(BaseModel):
     task_id: str
 
 
+
+
+class ReportGenerationStatusResponse(BaseModel):
+    """按 generation_id 查询综合报告生成状态。"""
+    generation_id: str
+    task_id: str
+    status: str
+    error_message: str = ""
