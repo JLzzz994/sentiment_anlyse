@@ -1,5 +1,7 @@
 from pathlib import Path
 
+from app.services.research.research_cases import ECOMMERCE_RESEARCH_CASES
+
 from engines.common.reports import get_output_dir
 from engines.common.task_manager import research_task_manager, ResearchTask
 from engines.contracts.agent_roles import RESEARCH_ROLE_KEYS
@@ -35,3 +37,9 @@ class ResearchService:
                 errors='ignore',
             )
         return research_task.task_id, research_results
+
+
+    @staticmethod
+    def get_research_examples() -> list[dict[str, object]]:
+        """返回前端可直接展示和发起研究的 Demo Case。"""
+        return [dict(case) for case in ECOMMERCE_RESEARCH_CASES]
