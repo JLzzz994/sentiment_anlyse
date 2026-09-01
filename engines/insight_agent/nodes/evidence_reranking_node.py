@@ -66,6 +66,13 @@ def _retrieval_score(record:EvidenceRecord)->float:
 
 
 def _calculate_rerank_scores(merged_records: list[EvidenceRecord]) -> dict[str, float]:
+    if not merged_records:
+        return {}
     max_hot_score = max(record.evidence_document.hotness_score for record in merged_records)
-    return {record.id: _retrieval_score(record) * 0.6 + (record.evidence_document.hotness_score / max_hot_score) * 0.4
-            for record in merged_records}
+    if max_hot_score <= 0:
+        max_hot_score = 1.0
+    return {
+        record.id: _retrieval_score(record) * 0.6
+        + (record.evidence_document.hotness_score / max_hot_score) * 0.4
+        for record in merged_records
+    }
