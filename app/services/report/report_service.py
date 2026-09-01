@@ -113,3 +113,10 @@ class ReportService:
             "file_name":filename,
             "media_type":media_type,
         }
+
+    def get_generation_status(self, generation_id: str) -> ReportGeneration:
+        """返回单次综合报告生成状态，供前端轮询。"""
+        generation = self._report_generations.get(generation_id)
+        if generation is None:
+            raise LookupError("报告生成记录不存在")
+        return generation
