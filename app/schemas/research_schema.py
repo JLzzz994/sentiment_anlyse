@@ -30,3 +30,15 @@ class ResearchResponse(BaseModel):
 class ResearchResultsResponse(BaseModel):
     task_id: str
     results: dict[str, str] = Field(default_factory=dict)
+
+
+class ResearchExample(BaseModel):
+    id: str
+    title: str
+    query: str
+    scenario: str
+    expected_evidence: list[str] = Field(default_factory=list)
+
+
+class ResearchExamplesResponse(BaseModel):
+    examples: list[ResearchExample] = Field(default_factory=list)
