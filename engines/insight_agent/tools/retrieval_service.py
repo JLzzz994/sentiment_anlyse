@@ -51,7 +51,11 @@ class InsightRetrievalService:
             limit=10,
             filter_expression=_build_published_at_filter(),
         )
+        if not vector_hits:
+            return []
         max_retrieval_score = max(hit.retrieval_score for hit in vector_hits)
+        if max_retrieval_score <= 0:
+            max_retrieval_score = 1.0
         return [document_to_evidence(
             hit.retrieval_document,
             hit.retrieval_channel,
