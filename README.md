@@ -114,3 +114,29 @@ Insight Agent   Media Agent
 ```
 
 Demo 数据均为合成数据，不代表真实客户、商家或经营结果。
+
+
+## 可视化 Demo 页面
+
+服务启动后直接访问：
+
+```text
+http://localhost:5000/demo
+```
+
+页面支持：
+
+- 选择 5 个预置电商研究 Case
+- 发起 Insight / Media 并行研究
+- 通过 SSE 查看 Agent 实时进度
+- 查看 Host 同章节风险/机会研判
+- 等待研究输入齐备后触发 Report Agent
+- 在页面内预览最终 HTML 报告
+
+为了避免前端对“报告未完成”接口反复收到异常，本分支新增：
+
+```http
+GET /api/report/generation/{generation_id}/status
+```
+
+用于查询 `running / completed / error`。
