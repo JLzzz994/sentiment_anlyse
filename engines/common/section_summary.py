@@ -5,6 +5,7 @@ from langchain_core.prompts import PromptTemplate
 from loguru import logger
 
 from engines.common.events import publish_section_ready
+from engines.common.evidence_persistence import persist_section_evidence
 from engines.common.research_graph_runtime import ResearchNode
 from engines.contracts.agent_roles import ROLE_INFOS, role_display_name
 from engines.contracts.evidence import build_evidence_context, EvidenceRecord, EvidenceContext
@@ -41,13 +42,24 @@ class BaseSectionSummaryNode(ResearchNode):
         section = sections[cursor]
 
         section_records:list[EvidenceRecord] = self._section_records(state, cursor)
+        retrieval_text = self._retrieval_text(state, cursor)
+        persist_section_evidence(
+            output_dir=self.ctx.output_dir,
+            task_id=state["task_id"],
+            role=state["role"],
+            section_key=section["section_key"],
+            section_title=section["title"],
+            retrieval_text=retrieval_text,
+            records=section_records,
+            rerank_scores=state.get("rerank_scores"),
+        )
         if not section_records:
             logger.info(f"章节 {section.get('section_key')} 证据上下文为空,跳过生成")
         else:
             evidence_context = build_evidence_context(
-                retrieval_text=self._retrieval_text(state,cursor),  # retrieval_text是 query
-                records=section_records,  # 章节记录是什么 # state['section_evidence_records']['cursor']
-                max_rendered=self.max_rendered_evidence, # 最多10条
+                retrieval_text=retrieval_text,
+                records=section_records,
+                max_rendered=self.max_rendered_evidence,
             )
             section["body"] = await self._generate_section_body(
                 state,
